@@ -22,15 +22,23 @@
 
 .introDialog {
   position: relative;
-  top: 60vh;
+  top: 5vh;
   width: 100vw;
   left: 50%;
   margin-top: -50px;
   margin-left: -100px;
 }
+
+#webcam {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  z-index: 11;
+}
+
 .stage {
   position: static;
-  height: 50vh;
+  height: 63vh;
 }
 
 #broadcaster {
@@ -49,6 +57,7 @@
 }
 
 .audience {
-  height: 50vh;
+  height: 35vh;
   background-color: blue;
+  flex-direction: row;
 }

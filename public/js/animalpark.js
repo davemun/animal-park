@@ -1,5 +1,7 @@
 var AnimalPark = function () {
-
+  this.username = "",
+  this.apiKey = "45200812",
+  this.sessionId = ""
 }
 
 var AP = new AnimalPark();
@@ -17,20 +19,27 @@ $('.introDialog button').click(function () {
       url: "/start",
       data: {username: AP.username},
       success: function (data) {
-      sessionId = data.sessionId,
+      AP.sessionId = data.sessionId,
       token = data.token;
 
       //Create session object with server generated credentials
-      var session = OT.initSession(apiKey, sessionId);
+      var session = OT.initSession(AP.apiKey, AP.sessionId);
 
       //Event listener to add other publishers
       session.on("streamCreated", function (event) {
-        session.subscribe(event.stream);
+        //Generate placeholder div to swap with webcam
+        $('<div></div>').attr('id', event.stream.name+'Video').css({"display": "inline-block"}).appendTo('.audience');
+
+        var subscriber = session.subscribe(event.stream, event.stream.name+"Video", {name:event.stream.name});
+        //Let's restrict audience frame rates since we just want their general reactions, not hi-fi vid
+        subscriber.restrictFrameRate(true);
+
+        $('#'+event.stream.name+'Video').css({"height":"100%"});
       });
 
       //Connect to session
       session.connect(token, function(error) {
-          var publisher = OT.initPublisher();
+          var publisher = OT.initPublisher('webcam', {name: AP.username});
           session.publish(publisher);
           //Hide button
           $('#broadcast').hide();
