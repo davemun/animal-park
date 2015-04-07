@@ -15,19 +15,19 @@
 }
 
 .splash #logo {
-    display: block;
-    width: auto;
-    height: 100%;
-  }
+  display: block;
+  width: auto;
+  height: 100%;
+}
 
-  #tagline {
-
-  }
-
-  .introDialog {
+.introDialog {
   position: fixed;
   top: 60vh;
   left: 50%;
   margin-top: -50px;
   margin-left: -100px;
-  }
+}
+
+#broadcaster {
+
+}
