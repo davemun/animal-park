@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/davemun/animal-park/issues"
   },
-  "homepage": "https://github.com/davemun/animal-park"
+  "homepage": "https://github.com/davemun/animal-park",
+  "dependencies": {
+    "express": "^4.12.3",
+    "opentok": "^2.2.5"
+  }
 }
