@@ -1,0 +1,26 @@
+{
+  "name": "animal-park",
+  "version": "1.0.0",
+  "description": "OpenTok sample app featuring TokBox's own.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davemun/animal-park.git"
+  },
+  "keywords": [
+    "You",
+    "Thought",
+    "It",
+    "Was",
+    "Over"
+  ],
+  "author": "Dave Mun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/davemun/animal-park/issues"
+  },
+  "homepage": "https://github.com/davemun/animal-park"
+}
