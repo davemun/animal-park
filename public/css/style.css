@@ -1,0 +1,30 @@
+.splash {
+  height: 100vh;
+  width: 100vw;
+}
+
+.splash #logoContainer {
+  height: 30vh;
+  width: 30vw;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20vh;
+}
+
+.splash #logo {
+    display: block;
+    width: auto;
+    height: 100%;
+  }
+
+  #tagline {
+
+  }
+
+  .introDialog {
+  position: fixed;
+  top: 60vh;
+  left: 50%;
+  margin-top: -50px;
+  margin-left: -100px;
+  }
