@@ -21,13 +21,34 @@
 }
 
 .introDialog {
-  position: fixed;
+  position: relative;
   top: 60vh;
+  width: 100vw;
   left: 50%;
   margin-top: -50px;
   margin-left: -100px;
 }
+.stage {
+  position: static;
+  height: 50vh;
+}
 
 #broadcaster {
+  position: static;
+  float: left;
+  width: 40vw;
+  height: 100%;
+  background-color: red;
+}
 
+#options {
+  display: inline-block;
+  width: 58vw;
+  height: 100%;
+  background-color: yellow;
+}
+
+.audience {
+  height: 50vh;
+  background-color: blue;
 }
