@@ -56,6 +56,10 @@
   background-color: yellow;
 }
 
+#message {
+  height: 20px;
+}
+
 .votebar {
   position: relative;
   margin-top: 5%;
