@@ -316,3 +316,50 @@ $('#done').click(function () {
   });
 });
 
+//===========================================================================//
+//                          Archiving Functions                              //
+//===========================================================================//
+
+$('#startarchive').click(function() {
+  $.ajax("http://localhost:3000/archive/start/"+AP.sessionId, {
+     type: "POST",
+     statusCode: {
+        200: function (response) {
+
+           AP.archiveId = response;
+           
+           $('#message').text('Broadcast is archiving!');
+           setTimeout(function () {
+             $('#message').text('');
+           }, 2000);
+        },
+        500: function (response) {
+           $('#message').text('Error while attempting to archive!');
+           setTimeout(function () {
+             $('#message').text('');
+           }, 2000);
+        }
+     }
+  });
+});
+
+$('#stoparchive').click(function() {
+    $.ajax("http://localhost:3000/archive/stop/"+AP.archiveId, {
+       type: "POST",
+       statusCode: {
+          200: function (response) {
+             $('#message').text('Broadcast archive stopped!');
+             setTimeout(function () {
+               $('#message').text('');
+             }, 2000);
+
+          },
+          500: function (response) {
+             $('#message').text('Error while attempting to stop archive!');
+             setTimeout(function () {
+               $('#message').text('');
+             }, 2000);
+          }
+       }
+    });
+});
