@@ -128,6 +128,19 @@ $('.introDialog button').click(function () {
         }
       });
 
+    //Listen for tributes to the games, and bring them to the center
+    session.on("signal:tribute", function (event) {
+      if (event.data.username === AP.username) {
+        //You volunteered? Why would you go and do a silly thing like that?
+        var tribute = $('#webcam');
+      } else {
+        //Relocate publisher video to broadcast element div
+        var tribute = $('#'+event.data.username+'Video');        
+      }
+
+      tribute.appendTo('#broadcaster').css({"height": "63vh", "width": "40vw", "left": "0px", "top": "0px"});
+    });
+
       //Connect to session
       session.connect(token, function(error) {
           var publisher = OT.initPublisher('webcam', {name: AP.username});
@@ -201,5 +214,15 @@ $('#guess button').click(function () {
         }
     });    
   }
+});
 
+$('#tribute').click(function () {
+  var tributeObj = {username: AP.username}
+  AP.session.signal({data: tributeObj, type:"tribute"}, function (err) {
+    if (err) {
+      console.log("signal error (" + error.code + "): " + error.message);
+    } else {
+      console.log("signal sent.");
+    }    
+  });
 });
