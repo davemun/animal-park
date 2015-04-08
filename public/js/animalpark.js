@@ -9,6 +9,7 @@ var AnimalPark = function () {
   this.sessionId = "";
   this.archiveId;
   this.session = null;
+  this.publisher;
   this.subscribers = {};
   this.onStage = false;
   this.currentTribute;
@@ -196,6 +197,8 @@ $('.introDialog button').click(function () {
       //Connect to session
       session.connect(token, function(error) {
           var publisher = OT.initPublisher('webcam', {name: AP.username});
+          //Store publisher for later access
+          AP.publisher = publisher;
           session.publish(publisher);
           //Hide button
           $('#broadcast').hide();
@@ -363,3 +366,35 @@ $('#stoparchive').click(function() {
        }
     });
 });
+
+//===========================================================================//
+//                         Screenshot Functions                              //
+//===========================================================================//
+
+$('#screenshot').click(function() {
+  var screenTarget;
+
+  //Check if there is anyone to screenshot
+  if (!AP.currentTribute) {
+   $('#message').text('There\'s noone to screenshot!');
+   setTimeout(function () {
+     $('#message').text('');
+   }, 2000);   
+   return;
+  }
+
+  //Check if you are screenshotting yourself
+  else if (AP.onStage) {
+    screenTarget = AP.publisher;    
+  } else {
+    screenTarget = AP.subscribers[AP.currentTribute];
+  }
+  //Otherwise screenshot other subscriber
+  var imgData = screenTarget.getImgData();
+  var img = document.createElement("img");
+  img.setAttribute("src", "data:image/png;base64," + imgData); 
+
+  // Replace with the parent DIV for the img
+  document.getElementById("screenshots").appendChild(img);
+});
+
