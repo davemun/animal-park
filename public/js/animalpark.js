@@ -1,7 +1,13 @@
+//===========================================================================//
+//                      Welcome to TokBox Animal Park                        //
+//===========================================================================//
+
+
 var AnimalPark = function () {
   this.username = "";
   this.apiKey = "45200812";
   this.sessionId = "";
+  this.archiveId;
   this.session = null;
   this.subscribers = {};
   this.onStage = false;
@@ -17,7 +23,12 @@ var AnimalPark = function () {
   this.heartbeat = false;
 }
 
+
 var AP = new AnimalPark();
+
+//===========================================================================//
+//                        Splash Page Systems                                //
+//===========================================================================//
 
 $('.introDialog button').click(function () {
   if ( $('.introDialog input').val() ) {
@@ -26,6 +37,9 @@ $('.introDialog button').click(function () {
     var usernameIsOccupied,
         tempName = $('.introDialog input').val();
 
+    //===========================//    
+    //   Username verification   //
+    //===========================//    
     $.ajax({
       type: "POST",
       url: "/username",
@@ -54,6 +68,11 @@ $('.introDialog button').click(function () {
     AP.username = escape($('.introDialog input').val());
     $('.introDialog input').val("");
     $('.splash').fadeOut(2000, function() { $(this).remove(); });
+
+    //===========================//    
+    //   Session/Token Requests  //
+    //===========================//    
+
     //Ask server for sessionId and token  
     $.ajax({
       type: "POST",
@@ -63,10 +82,18 @@ $('.introDialog button').click(function () {
       AP.sessionId = data.sessionId,
       token = data.token;
 
+    //===========================//    
+    //     Session Generation    //
+    //===========================//    
+
       //Create session object with server generated credentials
       AP.session = OT.initSession(AP.apiKey, AP.sessionId);
       //Usability alias
       var session = AP.session;
+
+    //===========================//    
+    //  Session Event Listeners  //
+    //===========================//    
 
       //Event listener to add other publishers
       session.on("streamCreated", function (event) {
@@ -173,7 +200,11 @@ $('.introDialog button').click(function () {
           //Hide button
           $('#broadcast').hide();
       });
-      console.log('heartbeating');
+
+//===========================================================================//
+//                          HeartBeat Systems                                //
+//===========================================================================//
+
       //Heartbeat system to update server on username availablity
       var heartbeatSender,
           heartbeatCheckTimer;
@@ -213,6 +244,8 @@ $('.introDialog button').click(function () {
     }
   });
 
+
+//I should probably re-do the structure here.
   } else {
 
     //If they didnt enter a username, blink a message
@@ -223,6 +256,11 @@ $('.introDialog button').click(function () {
   }
 
 });
+
+//===========================================================================//
+//                          Voting Functions                                 //
+//===========================================================================//
+
 
 $('#guess button').click(function () {
   var guessString = $('#guess input').val();
@@ -240,6 +278,10 @@ $('#guess button').click(function () {
     });    
   }
 });
+
+//===========================================================================//
+//                   Tribute Volunteer Functions                             //
+//===========================================================================//
 
 $('#tribute').click(function () {
   //You're already on stage, or someone else is on stage
@@ -273,3 +315,4 @@ $('#done').click(function () {
     }    
   });
 });
+
