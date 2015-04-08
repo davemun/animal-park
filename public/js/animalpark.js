@@ -343,6 +343,7 @@ $('#done').click(function () {
 $('#startarchive').click(function() {
   $.ajax("http://localhost:3000/archive/start/"+AP.sessionId, {
      type: "POST",
+     data: {username: AP.currentTribute},
      statusCode: {
         200: function (response) {
 

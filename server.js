@@ -1,5 +1,7 @@
 var express = require('express'),
     app = express(),
+    https = require('https'),
+    fs = require('fs'),
     bodyParser = require('body-parser'),
     path = require('path');
 
@@ -7,6 +9,12 @@ var express = require('express'),
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// This line is from the Node.js HTTPS documentation.
+var options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
 
 app.get('/', function(req, res) {
   res.sendFile('./index.html');
@@ -16,6 +24,7 @@ app.get('/', function(req, res) {
 var db = {};
 db.usernames = {};
 db.heartbeats = {};
+db.archiveRequests = {};
 
 var OpenTok = require('opentok'),
   apiKey = '45200812',
@@ -74,7 +83,7 @@ app.post('/start', function(req, res) {
 
 //Archiving functions
 app.post('/archive/start/:sessionId', function(req, res) {
-  opentok.startArchive(req.params.sessionId, function(err, archive) {
+  opentok.startArchive(req.params.sessionId, {name: req.body.username+'\'s Animal Side'}, function(err, archive) {
     if (err) {
       console.log(err);
       res.status(500);
@@ -82,6 +91,7 @@ app.post('/archive/start/:sessionId', function(req, res) {
       return;
     }
 
+    db.archiveRequests[archive.id] = req.body.username;
     res.send(archive.id);
 
     // The id property is useful to save off into a database
@@ -105,6 +115,10 @@ app.post('/archive/stop/:archiveId', function(req, res) {
   });
 });
 
+app.post('/archive/status', function(req, res) {
+  req.body.status
+});
+
 //Username verification functions
 app.post('/username', function(req, res) {
   var usernameIsUsed = true;
@@ -122,4 +136,9 @@ app.post('/heartbeat', function(req, res) {
   res.send();
 });
 
-app.listen(process.env.PORT || 3000);
+//app.listen(process.env.PORT || 3000);
+
+// Create an HTTP service.
+//http.createServer(app).listen(process.env.PORT || 80);
+// Create an HTTPS service identical to the HTTP service.
+https.createServer(options, app).listen(process.env.PORT);
