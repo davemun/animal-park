@@ -12,6 +12,9 @@ app.get('/', function(req, res) {
   res.sendFile('./index.html');
 });
 
+//Data store to hold usernames
+var db = {};
+
 var OpenTok = require('opentok'),
   apiKey = '45200812',
   apiSecret = 'a6ab795cda0110e7974dd5153098d02d68470a7a',
@@ -76,6 +79,16 @@ app.post('/archive/stop/:archiveId', function(req, res) {
     // The id property is useful to save off into a database
     console.log("Stopped archive:" + archive.id);
   });
+});
+
+//Username verification functions
+app.post('/username', function(req, res) {
+  var usernameIsUsed = true;
+  if (!db[req.body.username]) {
+    usernameIsUsed = false;
+    db[req.body.username] = true;
+  }
+  res.send({isAlreadyUsed: usernameIsUsed});
 });
 
 app.listen(process.env.PORT || 3000);

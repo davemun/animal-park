@@ -17,8 +17,27 @@ var AP = new AnimalPark();
 
 $('.introDialog button').click(function () {
   if ( $('.introDialog input').val() ) {
+    //Check to see if username already taken
+      //Used by vote counting and archiving naming
+    var usernameIsOccupied;
 
-    //If there is a username entered, transition to main app
+    $.ajax({
+      type: "POST",
+      url: "/username",
+      data: {username: AP.username},
+      success: function (data) {
+        usernameIsOccupied = data.isAlreadyUsed;
+        //If username in use
+        if (data.isAlreadyUsed) {
+          //Blink message to ask for new name
+          var alertMsg = $('<div>Already in use! Please try a new name!</div>');
+          $('.introDialog').append(alertMsg);
+          alertMsg.fadeOut(2000, function() { $(this).remove(); });
+        }
+      }
+    });
+
+    //If there is a valid username, transition to main app
     AP.username = escape($('.introDialog input').val());
     $('.introDialog input').val("");
     $('.splash').fadeOut(2000, function() { $(this).remove(); });
