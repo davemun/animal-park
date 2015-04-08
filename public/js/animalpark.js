@@ -24,7 +24,9 @@ $('.introDialog button').click(function () {
     $.ajax({
       type: "POST",
       url: "/username",
-      data: {username: AP.username},
+      //Sanitize/more importantly case normalize username before we store in server
+      //Clientside storage of name retains case but server side is agnostic
+      data: {username: escape(AP.username).toLowerCase()},
       success: function (data) {
         usernameIsOccupied = data.isAlreadyUsed;
         //If username in use
@@ -34,8 +36,14 @@ $('.introDialog button').click(function () {
           $('.introDialog').append(alertMsg);
           alertMsg.fadeOut(2000, function() { $(this).remove(); });
         }
-      }
+      },
+      async: false
     });
+
+    //Don't start app if username is already in use
+    if (usernameIsOccupied) {
+      return;
+    }
 
     //If there is a valid username, transition to main app
     AP.username = escape($('.introDialog input').val());
