@@ -203,7 +203,8 @@ $('.introDialog button').click(function () {
 
       //Connect to session
       session.connect(token, function(error) {
-          var publisher = OT.initPublisher('webcam', {name: AP.username});
+          //High res - because we can
+          var publisher = OT.initPublisher('webcam', {name: AP.username, resolution: '1280x720'});
           //Store publisher for later access
           AP.publisher = publisher;
           session.publish(publisher);
