@@ -11,6 +11,7 @@ var AnimalPark = function () {
                   {animal: undefined, votes: 0},
                   {animal: undefined, votes: 0}
                  ];
+  this.heartbeat = false;
 }
 
 var AP = new AnimalPark();
@@ -19,14 +20,15 @@ $('.introDialog button').click(function () {
   if ( $('.introDialog input').val() ) {
     //Check to see if username already taken
       //Used by vote counting and archiving naming
-    var usernameIsOccupied;
+    var usernameIsOccupied,
+        tempName = $('.introDialog input').val();
 
     $.ajax({
       type: "POST",
       url: "/username",
       //Sanitize/more importantly case normalize username before we store in server
       //Clientside storage of name retains case but server side is agnostic
-      data: {username: escape(AP.username).toLowerCase()},
+      data: {username: escape(tempName).toLowerCase()},
       success: function (data) {
         usernameIsOccupied = data.isAlreadyUsed;
         //If username in use
@@ -133,6 +135,43 @@ $('.introDialog button').click(function () {
           //Hide button
           $('#broadcast').hide();
       });
+      console.log('heartbeating');
+      //Heartbeat system to update server on username availablity
+      var heartbeatSender,
+          heartbeatCheckTimer;
+
+      function heartbeat () {
+        $.post('/heartbeat', {username: AP.username}, function () {
+          AP.heartbeat = true;
+        });
+      }
+      //Send it every 2 seconds, and server responds instantly.
+      //Every 10 seconds if no heartbeats reset timer, client disconnects
+      //itself from session and server will also update username availability.
+
+      //Resets indicator to false every 10 seconds. Every 2 seconds a heartbeat
+      //has a chance to set indicator to true before 10 secs runs out.
+      //If still false in 10 seconds, client DCed, server also has a timer and will
+      //independently update username availability.
+      //User will also attempt to manually disconnect from session - this probably 
+      //creates more problems than anything else, but its a sample app - it's an
+      //excuse to use manual session disconnect events.
+      function heartbeatCheck () {
+        if (AP.heartbeat = false) {
+          //Failed check
+          session.disconnect();
+          clearInterval(heartbeatSender);
+          clearInterval(heartbeatCheckTimer);
+        }
+        //Passed check, reset to false, and wait 10s
+        AP.heartbeat = false;
+      }
+
+      //Initial is-connected value to false
+      AP.heartbeat = false;
+      //Check again in 10s, send update every 2s
+      heartbeatSender = setInterval(heartbeat, 2000),
+      heartbeatCheckTimer = setInterval(heartbeatCheck, 10000);
     }
   });
 

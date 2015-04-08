@@ -14,6 +14,8 @@ app.get('/', function(req, res) {
 
 //Data store to hold usernames
 var db = {};
+db.usernames = {};
+db.heartbeats = {};
 
 var OpenTok = require('opentok'),
   apiKey = '45200812',
@@ -39,13 +41,35 @@ var OpenTok = require('opentok'),
   });
 
 app.post('/start', function(req, res) {
-  //Here we have access to req.body.username
-  //Store it in a db somewhere?
+  //Here we have access to req.body.username, set an alias
+  var username = escape(req.body.username).toLowerCase();
+
   var data = {
               sessionId: sessionId,
               token: token
              };
   res.send(data);
+
+  var heartbeatCheckTimer;
+  //Initiate heartbeat checks for this client
+  function heartbeatChecks () {
+    //If fail heartbeat check update username to available
+    if (db.heartbeats[username] === false) {
+      db.usernames[username] = undefined;
+      //Stop checking for heartbeat
+      clearInterval(heartbeatCheckTimer);
+      console.log('HB failed from '+username);
+      console.log(JSON.stringify(db.usernames));
+    }
+    //Passed check, reset to false, wait 10s
+    db.heartbeats[username] = false;
+  }
+
+  //Initial is-connected value to false
+  db.heartbeats[username] = false;
+  //Check in 10 seconds, and from then on, if client connected
+  //By then a heartbeat should have reset it to true
+  heartbeatCheckTimer = setInterval(heartbeatChecks, 10000);
 });
 
 //Archiving functions
@@ -84,11 +108,18 @@ app.post('/archive/stop/:archiveId', function(req, res) {
 //Username verification functions
 app.post('/username', function(req, res) {
   var usernameIsUsed = true;
-  if (!db[req.body.username]) {
+  if (db.usernames[req.body.username] === undefined) {
     usernameIsUsed = false;
-    db[req.body.username] = true;
+    db.usernames[req.body.username] = true;
   }
   res.send({isAlreadyUsed: usernameIsUsed});
+});
+
+//Heartbeat functions
+app.post('/heartbeat', function(req, res) {
+  var username = escape(req.body.username).toLowerCase();
+  db.heartbeats[username] = true;
+  res.send();
 });
 
 app.listen(process.env.PORT || 3000);
