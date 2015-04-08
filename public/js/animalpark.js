@@ -3,6 +3,8 @@ var AnimalPark = function () {
   this.apiKey = "45200812";
   this.sessionId = "";
   this.session = null;
+  this.subscribers = {};
+  this.onStage = false;
   this.userVotes = {};
   this.voteTallies = {};
   this.topFour = [
@@ -71,6 +73,8 @@ $('.introDialog button').click(function () {
         $('<div></div>').attr('id', event.stream.name+'Video').css({"display": "inline-block"}).appendTo('.audience');
 
         var subscriber = session.subscribe(event.stream, event.stream.name+"Video", {name:event.stream.name});
+        //Store subscriber for later access
+        AP.subscribers[event.stream.name] = subscriber;
         //Let's restrict audience frame rates since we just want their general reactions, not hi-fi vid
         subscriber.restrictFrameRate(true);
 
@@ -131,14 +135,32 @@ $('.introDialog button').click(function () {
     //Listen for tributes to the games, and bring them to the center
     session.on("signal:tribute", function (event) {
       if (event.data.username === AP.username) {
-        //You volunteered? Why would you go and do a silly thing like that?
+        //You volunteered!
         var tribute = $('#webcam');
       } else {
         //Relocate publisher video to broadcast element div
-        var tribute = $('#'+event.data.username+'Video');        
+        var tribute = $('#'+event.data.username+'Video');  
+        //Unrestrict framerate
+        AP.subscribers[event.data.username].restrictFrameRate(false);     
       }
 
       tribute.appendTo('#broadcaster').css({"height": "63vh", "width": "40vw", "left": "0px", "top": "0px"});
+      AP.onStage = true;
+    });
+
+    //Listen for when tributes want to end
+    session.on("signal:tributeEnd", function (event) {
+      if (event.data.username === AP.username) {
+        var tribute = $('#webcam');
+        tribute.appendTo('.webcamContainer').removeAttr('style').css({"height": "198px", "width": "264px", "position": "fixed", "top": "0px", "right": "0px", "z-index": 20}); 
+        AP.onStage = false;
+      } else {
+        //Relocate publisher video to broadcast element div
+        var tribute = $('#'+event.data.username+'Video');   
+        tribute.appendTo('.audience').css({"height": "100%", "width": "264px"});
+        //Re-restrict framerate
+        AP.subscribers[event.data.username].restrictFrameRate(true);     
+      }
     });
 
       //Connect to session
@@ -217,8 +239,27 @@ $('#guess button').click(function () {
 });
 
 $('#tribute').click(function () {
+  //You're already on stage, can't go up twice
+  if (AP.onStage) {
+    return;
+  }
   var tributeObj = {username: AP.username}
   AP.session.signal({data: tributeObj, type:"tribute"}, function (err) {
+    if (err) {
+      console.log("signal error (" + error.code + "): " + error.message);
+    } else {
+      console.log("signal sent.");
+    }    
+  });
+});
+
+$('#done').click(function () {
+  //Already off stage, nowhere to go
+  if (!AP.onStage) {
+    return;
+  }
+  var tributeObj = {username: AP.username}
+  AP.session.signal({data: tributeObj, type:"tributeEnd"}, function (err) {
     if (err) {
       console.log("signal error (" + error.code + "): " + error.message);
     } else {
