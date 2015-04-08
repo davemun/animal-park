@@ -5,6 +5,7 @@ var AnimalPark = function () {
   this.session = null;
   this.subscribers = {};
   this.onStage = false;
+  this.currentTribute;
   this.userVotes = {};
   this.voteTallies = {};
   this.topFour = [
@@ -137,6 +138,7 @@ $('.introDialog button').click(function () {
       if (event.data.username === AP.username) {
         //You volunteered!
         var tribute = $('#webcam');
+        AP.onStage = true;
       } else {
         //Relocate publisher video to broadcast element div
         var tribute = $('#'+event.data.username+'Video');  
@@ -145,7 +147,7 @@ $('.introDialog button').click(function () {
       }
 
       tribute.appendTo('#broadcaster').css({"height": "63vh", "width": "40vw", "left": "0px", "top": "0px"});
-      AP.onStage = true;
+      AP.currentTribute = event.data.username;
     });
 
     //Listen for when tributes want to end
@@ -159,8 +161,9 @@ $('.introDialog button').click(function () {
         var tribute = $('#'+event.data.username+'Video');   
         tribute.appendTo('.audience').css({"height": "100%", "width": "264px"});
         //Re-restrict framerate
-        AP.subscribers[event.data.username].restrictFrameRate(true);     
+        AP.subscribers[event.data.username].restrictFrameRate(true);
       }
+      AP.currentTribute = undefined;      
     });
 
       //Connect to session
@@ -239,8 +242,11 @@ $('#guess button').click(function () {
 });
 
 $('#tribute').click(function () {
-  //You're already on stage, can't go up twice
+  //You're already on stage, or someone else is on stage
   if (AP.onStage) {
+    return;
+  } else if (AP.currentTribute !== undefined) {
+    console.log("Wait your turn! Someone's already onstage.")
     return;
   }
   var tributeObj = {username: AP.username}
