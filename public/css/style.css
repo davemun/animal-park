@@ -46,14 +46,12 @@
   float: left;
   width: 40vw;
   height: 100%;
-  background-color: red;
 }
 
 #options {
   display: inline-block;
   width: 58vw;
   height: 100%;
-  background-color: yellow;
 }
 
 #message {
@@ -86,6 +84,5 @@
 
 .audience {
   height: 35vh;
-  background-color: blue;
   flex-direction: row;
 }
