@@ -14,13 +14,14 @@ var AnimalPark = function () {
   this.onStage = false;
   this.currentTribute;
   this.userVotes = {};
-  this.voteTallies = {};
+  this.totalVotes = 0;
   this.topFour = [
-                  {animal: undefined, votes: 0},
-                  {animal: undefined, votes: 0},
-                  {animal: undefined, votes: 0},
-                  {animal: undefined, votes: 0}
+                  {animal: "None", votes: 0},
+                  {animal: "None", votes: 0},
+                  {animal: "None", votes: 0},
+                  {animal: "None", votes: 0}
                  ];
+  this.hasVotedThisRound = false;
   this.heartbeat = false;
 }
 
@@ -110,6 +111,10 @@ $('.introDialog button').click(function () {
         $('#'+event.stream.name+'Video').css({"height":"100%"});
       });
 
+    //===========================//    
+    //   Vote->Ranking Handler   //
+    //===========================//
+
       //Event listener to get votes from other publishers
       session.on("signal:vote", function (event) {
         console.log("Signal sent from connection " + event.from.id);
@@ -117,48 +122,48 @@ $('.introDialog button').click(function () {
 
         //First sanitize and normalize inputs.
         var vote = escape(event.data.vote).toLowerCase(),
-            username = escape(event.data.vote);
+            username = escape(event.data.username);
 
-        //If user already voted, change their vote to other animal
+        //If user already voted, ignore
         if (AP.userVotes[username]) {
-          //Get original animal
-          var oldAnimal = AP.userVotes[username];
-
-          //If voting for same animal, no change, and return.
-          if (oldAnimal === vote) {
-            return;
-          }
-
-          //Subtract original vote from total of that animal
-          AP.voteTallies[oldAnimal] = AP.voteTallies[oldAnimal] - 1;
+          return;
         }
-        //Store new vote
-        AP.userVotes[username] = vote;
-        //Increase new animal tally
-        AP.voteTallies[vote] = AP.voteTallies[vote] ? AP.voteTallies[vote] + 1 : 1;
 
-        //If animal can be in top four, overwrite one with lesser count
-        for (var i = 0; i < AP.topFour.length; i++) {
-          //If already in top four, check if can move up a rank
-          if (AP.topFour[i].animal === vote) {
-            AP.topFour[i].votes = AP.topFour[i].votes + 1;
-            //Swap with rank above if needed
-            if (i !== 0 && AP.topFour[i-1].votes < AP.topFour[i].votes ) {
-              var temp = AP.topFour[i-1];
-              AP.topFour[i-1] = AP.topFour[i];
-              AP.topFour[i] = temp;
+        //Otherwise store their vote and update rankings
+        var newTally = (AP.userVotes[event.data.vote] === undefined) ? 1 : AP.userVotes[event.data.vote] + 1;
+        AP.userVotes[event.data.vote] = newTally;
+        AP.totalVotes = AP.totalVotes + 1;
+
+        //Slow hack to get ranking working
+        var inTopFour = false;
+
+        AP.topFour.forEach(function (rankObj) {
+          if (rankObj.animal === event.data.vote) {
+            inTopFour = true;
+            rankObj.votes = rankObj.votes + 1;
+          }
+        });
+
+        //Check if new vote count puts in top four
+        if (!inTopFour) {
+          for (var i = AP.topFour.length-1; i >= 0; i--) {
+            if (AP.userVotes[event.data.vote] > AP.topFour[i].votes) {
+              AP.topFour[i] = {animal: event.data.vote, votes: AP.userVotes[event.data.vote]};
+              break;
             }
-            break;
-          }
-
-          if (AP.topFour[i].votes < AP.voteTallies[vote]) {
-            AP.topFour[i] = {
-                              votes: AP.voteTallies[vote],
-                              animal: vote
-                            };
-            break;
           }
         }
+
+        //Update voting bars on front end display
+        var rankOnePercent = Math.floor( (AP.topFour[0].votes / AP.totalVotes) * 100 ),
+            rankTwoPercent = Math.floor( (AP.topFour[1].votes / AP.totalVotes) * 100 ),
+            rankThreePercent = Math.floor( (AP.topFour[2].votes / AP.totalVotes) * 100 ),
+            rankFourPercent = Math.floor( (AP.topFour[3].votes / AP.totalVotes) * 100 );
+
+        $('#rankOne').attr("aria-valuenow", rankOnePercent).text(AP.topFour[0].animal + ' ' + rankOnePercent +  '%').css({"width": ""+rankOnePercent+"%"});
+        $('#rankTwo').attr("aria-valuenow", rankTwoPercent).text(AP.topFour[1].animal + ' ' + rankTwoPercent +  '%').css({"width": ""+rankTwoPercent+"%"});
+        $('#rankThree').attr("aria-valuenow", rankThreePercent).text(AP.topFour[2].animal + ' ' + rankThreePercent +  '%').css({"width": ""+rankThreePercent+"%"});
+        $('#rankFour').attr("aria-valuenow", rankFourPercent).text(AP.topFour[3].animal + ' ' + rankFourPercent +  '%').css({"width": ""+rankFourPercent+"%"});
       });
 
     //Listen for tributes to the games, and bring them to the center
@@ -191,7 +196,9 @@ $('.introDialog button').click(function () {
         //Re-restrict framerate
         AP.subscribers[event.data.username].restrictFrameRate(true);
       }
-      AP.currentTribute = undefined;      
+      AP.currentTribute = undefined;  
+      AP.hasVotedThisRound = false;
+      AP.totalVotes = 0;    
     });
 
       //Connect to session
@@ -261,21 +268,30 @@ $('.introDialog button').click(function () {
 });
 
 //===========================================================================//
-//                          Voting Functions                                 //
+//                     Voting Submission Functions                           //
 //===========================================================================//
 
 
 $('#guess button').click(function () {
+  //Check if already voted this round
+  if (AP.hasVotedThisRound) {
+   $('#message').text('You already voted this round!');
+   setTimeout(function () {
+     $('#message').text('');
+   }, 2000); 
+   return; 
+  }
+
   var guessString = $('#guess input').val();
   var voteObj = {vote: guessString, username: AP.username};
 
   if (guessString) {
-
     $('#guess input').val("");
     AP.session.signal({data: voteObj, type:"vote"}, function (err) {
         if (err) {
           console.log("signal error (" + error.code + "): " + error.message);
         } else {
+          AP.hasVotedThisRound = true;
           console.log("signal sent.");
         }
     });    
