@@ -341,7 +341,7 @@ $('#done').click(function () {
 //===========================================================================//
 
 $('#startarchive').click(function() {
-  $.ajax("http://localhost:3000/archive/start/"+AP.sessionId, {
+  $.ajax("http://animalpark.herokuapp.com/archive/start/"+AP.sessionId, {
      type: "POST",
      statusCode: {
         200: function (response) {
@@ -364,7 +364,7 @@ $('#startarchive').click(function() {
 });
 
 $('#stoparchive').click(function() {
-    $.ajax("http://localhost:3000/archive/stop/"+AP.archiveId, {
+    $.ajax("http://animalpark.herokuapp.com/archive/stop/"+AP.archiveId, {
        type: "POST",
        statusCode: {
           200: function (response) {
