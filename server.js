@@ -107,6 +107,8 @@ app.post('/archive/stop', function(req, res) {
 app.post('/archive/status', function(req, res) {
   //if an archive video is available, store link in database
   if (req.body.status = "available") {
+    console.log(db.archiveRequests[req.body.name]);
+    console.log(req.body);
     db.archiveRequests[req.body.name][req.body.id] = req.body.url;
   }
 });
