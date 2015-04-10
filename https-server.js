@@ -3,8 +3,8 @@ var fs = require('fs');
 
 // This line is from the Node.js HTTPS documentation.
 var options = {
-  key: fs.readFile('server.key', 'utf8'),
-  cert: fs.readFile('server.crt', 'utf8')
+  key: fs.readFileSync('server.crt', 'utf8'),
+  cert: fs.readFileSync('server.key', 'utf8')
 };
 
 // console.log(fs.readFileSync('server.key', 'utf8'));
