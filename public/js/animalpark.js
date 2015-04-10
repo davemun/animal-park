@@ -28,6 +28,42 @@ var AnimalPark = function () {
 
 var AP = new AnimalPark();
 
+// var serverAddress = "animalpark.herokuapp.com";
+var serverAddress = "localhost:3000";
+
+//===========================================================================//
+//                         Helper Functions                                  //
+//===========================================================================//
+
+//Display a temporary message in the #messageContainer.
+function flashMessage (msgText, targetEl, removeTime, fadeTime, callback) {
+  var message = $('<div></div').text(msgText).addClass('message');
+
+  //Message display are defaults to a #messageContainer element
+  targetEl = $(targetEl).length == 0 ? $('#messageContainer') : $(targetEl);
+
+  //message defaults to blank string
+  message = message || '';
+
+  //defaults to start fade after 1s
+  removeTime = removeTime || 1000;
+
+  //defaults to 1s fade
+  fadeTime = fadeTime || 1000;
+
+  //defaults to remove itself from DOM
+  callback = callback || function () { $(this).remove(); };
+
+  targetEl.append(message);
+
+  setTimeout(function () {
+    message.fadeOut(fadeTime, callback);
+  }, removeTime);
+
+  //Return jquery message object for chaining
+  return message;
+}
+
 //===========================================================================//
 //                        Splash Page Systems                                //
 //===========================================================================//
@@ -53,9 +89,7 @@ $('.introDialog button').click(function () {
         //If username in use
         if (data.isAlreadyUsed) {
           //Blink message to ask for new name
-          var alertMsg = $('<div>Already in use! Please try a new name!</div>');
-          $('.introDialog').append(alertMsg);
-          alertMsg.fadeOut(2000, function() { $(this).remove(); });
+          flashMessage('<div>Already in use! Please try a new name!</div>', '.introDialog');
         }
       },
       async: false
@@ -276,10 +310,7 @@ $('.introDialog button').click(function () {
 $('#guess button').click(function () {
   //Check if already voted this round
   if (AP.hasVotedThisRound) {
-   $('#message').text('You already voted this round!');
-   setTimeout(function () {
-     $('#message').text('');
-   }, 2000); 
+   flashMessage('You already voted this round!');
    return; 
   }
 
@@ -341,47 +372,86 @@ $('#done').click(function () {
 //===========================================================================//
 
 $('#startarchive').click(function() {
-  $.ajax("http://animalpark.herokuapp.com/archive/start/"+AP.sessionId, {
+  //if there is an archive request already ongoing
+
+  if (AP.archiveId) {
+   flashMessage('You\'re already recording this session!');
+  }
+
+  $.ajax("http://"+serverAddress+"/archive/start", {
      type: "POST",
+     data: {username: AP.username, sessionId: AP.sessionId},
      statusCode: {
         200: function (response) {
 
            AP.archiveId = response;
            
-           $('#message').text('Broadcast is archiving!');
-           setTimeout(function () {
-             $('#message').text('');
-           }, 2000);
+           flashMessage('Broadcast is archiving!');
         },
         500: function (response) {
-           $('#message').text('Error while attempting to archive!');
-           setTimeout(function () {
-             $('#message').text('');
-           }, 2000);
+           flashMessage('Error while attempting to archive!');
         }
      }
   });
 });
 
 $('#stoparchive').click(function() {
-    $.ajax("http://animalpark.herokuapp.com/archive/stop/"+AP.archiveId, {
+    $.ajax("http://"+serverAddress+"/archive/stop", {
        type: "POST",
+       data: {archiveId: AP.archiveId},
        statusCode: {
           200: function (response) {
-             $('#message').text('Broadcast archive stopped!');
-             setTimeout(function () {
-               $('#message').text('');
-             }, 2000);
-
+             AP.archiveId = undefined;
+             flashMessage('Broadcast archive stopped!');
           },
           500: function (response) {
-             $('#message').text('Error while attempting to stop archive!');
-             setTimeout(function () {
-               $('#message').text('');
-             }, 2000);
+             flashMessage('Error while attempting to stop archive!');
           }
        }
     });
+});
+
+$('#listarchives').click(function() {
+    var loadMsgContainer = $('<div></div>').addClass('loadMsg'),
+        loadMsg = $('<div></div').text('Loading archives...'),
+        spinner = $('<i class="fa fa-spin"></i>');
+
+    loadMsgContainer.append(loadMsg);
+    loadMsgContainer.append(spinner);
+    $('.modal-body').append(loadMsgContainer);
+
+    $.ajax("http://"+serverAddress+"/archive/list/"+AP.username, {
+       type: "GET",
+       statusCode: {
+          200: function (response) {
+             var archiveIds = Object.keys(response),
+                  downloadLink;
+
+              //Remove load message since we got answer from server
+              $('.loadMsg').slideUp(400, function () { $(this).remove(); } );
+
+              //If you don't have any archives
+              if (!archiveIds.length) {
+                var noArchiveMsg = $('<div></div').text('Looks like you don\'t have any archives!');
+                $('.modal-body').append(noArchiveMsg);
+              }
+
+             for (id in archiveIds) {
+              downloadLink = $(response[id]);
+              var linkEl = $('<a></a>').attr('href', downloadLink);
+              $('.modal-body').append(linkEl);
+             }
+          },
+          500: function (response) {
+             flashMessage('Error while attempting to get list of archive!');
+          }
+       }
+    });
+});
+
+//If close modal clean it out
+$('.modalClose').click(function() { 
+  $('.modal-body').empty();
 });
 
 //===========================================================================//
@@ -393,10 +463,7 @@ $('#screenshot').click(function() {
 
   //Check if there is anyone to screenshot
   if (!AP.currentTribute) {
-   $('#message').text('There\'s noone to screenshot!');
-   setTimeout(function () {
-     $('#message').text('');
-   }, 2000);   
+   flashMessage('There\'s noone to screenshot!'); 
    return;
   }
 
