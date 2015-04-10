@@ -424,6 +424,7 @@ $('#listarchives').click(function() {
        type: "GET",
        statusCode: {
           200: function (response) {
+            console.log(response);
              var archiveIds = Object.keys(response),
                   downloadLink;
 
@@ -434,10 +435,11 @@ $('#listarchives').click(function() {
               if (!archiveIds.length) {
                 var noArchiveMsg = $('<div></div').text('Looks like you don\'t have any archives!');
                 $('.modal-body').append(noArchiveMsg);
+                return;
               }
 
-             for (id in archiveIds) {
-              downloadLink = $(response[id]);
+             for (var i = 0; i < archiveIds.length; i++) {
+              downloadLink = response[archiveIds[i]];
               var linkEl = $('<a></a>').attr('href', downloadLink);
               $('.modal-body').append(linkEl);
              }
