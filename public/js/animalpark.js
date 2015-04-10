@@ -28,8 +28,8 @@ var AnimalPark = function () {
 
 var AP = new AnimalPark();
 
-// var serverAddress = "animalpark.herokuapp.com";
-var serverAddress = "localhost:3000";
+var serverAddress = "animalpark.herokuapp.com";
+// var serverAddress = "localhost:3000";
 
 //===========================================================================//
 //                         Helper Functions                                  //
