@@ -89,7 +89,7 @@ $('.introDialog button').click(function () {
         //If username in use
         if (data.isAlreadyUsed) {
           //Blink message to ask for new name
-          flashMessage('<div>Already in use! Please try a new name!</div>', '.introDialog');
+          flashMessage('Already in use! Please try a new name!', '.introDialog');
         }
       },
       async: false
