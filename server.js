@@ -16,6 +16,7 @@ app.get('/', function(req, res) {
 var db = {};
 db.usernames = {};
 db.heartbeats = {};
+db.archiveRequests = {};
 
 var OpenTok = require('opentok'),
   apiKey = '45200812',
@@ -73,36 +74,47 @@ app.post('/start', function(req, res) {
 });
 
 //Archiving functions
-app.post('/archive/start/:sessionId', function(req, res) {
-  opentok.startArchive(req.params.sessionId, function(err, archive) {
+app.post('/archive/start', function(req, res) {
+  opentok.startArchive(req.body.sessionId, {name: req.body.username}, function(err, archive) {
     if (err) {
       console.log(err);
-      res.status(500);
-      res.send(err);
+      res.status(500).send(err);
       return;
     }
 
-    res.send(archive.id);
+    res.status(200).send(archive.id);
 
     // The id property is useful to save off into a database
     console.log("new archive:" + archive.id);
   });
 });
 
-app.post('/archive/stop/:archiveId', function(req, res) {
-  opentok.stopArchive(req.params.archiveId, function(err, archive) {
+app.post('/archive/stop', function(req, res) {
+  opentok.stopArchive(req.body.archiveId, function(err, archive) {
     if (err) {
       console.log(err);
-      res.status(500);
-      res.send(err);
+      res.status(500).send(err);
       return;
     }
 
-    res.send();
+    res.status(200).end();
 
     // The id property is useful to save off into a database
     console.log("Stopped archive:" + archive.id);
   });
+});
+
+app.post('/archive/status', function(req, res) {
+  //if an archive video is available, store link in database
+  if (req.body.status = "available") {
+    db.archiveRequests[req.body.name][req.body.id] = req.body.url;
+  }
+});
+
+app.get('/archive/list/:name', function(req, res) {
+  //send back list of archives if it exists
+  var list = db.archiveRequests[req.params.name] || {};
+  res.send(list);
 });
 
 //Username verification functions
