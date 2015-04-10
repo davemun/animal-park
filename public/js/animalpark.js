@@ -440,7 +440,7 @@ $('#listarchives').click(function() {
 
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
-              var linkEl = $('<a></a>').attr('href', downloadLink);
+              var linkEl = $('<a></a>').attr('href', downloadLink).text('Archive '+i);
               $('.modal-body').append(linkEl);
              }
           },
