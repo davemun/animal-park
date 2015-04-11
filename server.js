@@ -106,7 +106,7 @@ app.post('/archive/stop', function(req, res) {
 
 app.post('/archive/status', function(req, res) {
   //if an archive video is available, store link in database
-  if (req.body.status = "available") {
+  if (req.body.status === "available") {
     //initialize container for user if not already there
     db.archiveRequests[req.body.name] = db.archiveRequests[req.body.name] || {};
     db.archiveRequests[req.body.name][req.body.id] = req.body.url;
