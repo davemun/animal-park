@@ -418,7 +418,7 @@ $('#listarchives').click(function() {
 
     loadMsgContainer.append(loadMsg);
     loadMsgContainer.append(spinner);
-    $('.modal-body').append(loadMsgContainer);
+    $('.videoContainer').append(loadMsgContainer);
 
     $.ajax("http://"+serverAddress+"/archive/list/"+AP.username, {
        type: "GET",
@@ -434,14 +434,14 @@ $('#listarchives').click(function() {
               //If you don't have any archives
               if (!archiveIds.length) {
                 var noArchiveMsg = $('<div></div').text('Looks like you don\'t have any archives!');
-                $('.modal-body').append(noArchiveMsg);
+                $('.videoContainer').append(noArchiveMsg);
                 return;
               }
 
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
               var linkEl = $('<a></a>').attr('href', downloadLink).text('Archive '+i);
-              $('.modal-body').append(linkEl);
+              $('.videoContainer').append(linkEl);
              }
           },
           500: function (response) {
@@ -453,7 +453,7 @@ $('#listarchives').click(function() {
 
 //If close modal clean it out
 $('.modalClose').click(function() { 
-  $('.modal-body').empty();
+  $('.videoContainer').empty();
 });
 
 //===========================================================================//
@@ -481,6 +481,6 @@ $('#screenshot').click(function() {
   img.setAttribute("src", "data:image/png;base64," + imgData); 
 
   // Replace with the parent DIV for the img
-  document.getElementById("screenshots").appendChild(img);
+  document.getElementById("imageContainer").appendChild(img);
 });
 
