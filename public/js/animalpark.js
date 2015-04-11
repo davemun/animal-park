@@ -103,7 +103,11 @@ $('.introDialog button').click(function () {
     //If there is a valid username, transition to main app
     AP.username = escape($('.introDialog input').val());
     $('.introDialog input').val("");
-    $('.splash').fadeOut(2000, function() { $(this).remove(); });
+    $('.splash').fadeOut(2000, function() { 
+      $(this).remove(); 
+      //focus cursor on guess input on load
+      $( '#guess input' ).focus();
+    });
 
     //===========================//    
     //   Session/Token Requests  //

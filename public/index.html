@@ -99,7 +99,22 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 <script>
   $(function() {
-    $( "#webcam" ).draggable();
+    //make self webcam display draggable
+    $( '#webcam' ).draggable();
+    //focus cursor on name input on load
+    $( '#name' ).focus();
+    //allow user to press enter instead of clicking button on splash
+    $("#name").keyup(function(event){
+      if(event.keyCode == 13){
+          $('.introDialog button').click();
+      }
+    });
+    //allow user to press enter instead of clicking button on guess
+    $("#guess input").keyup(function(event){
+      if(event.keyCode == 13){
+          $('#guess button').click();
+      }
+    });
   });
 </script>
 <script src="js/animalpark.js"></script>
