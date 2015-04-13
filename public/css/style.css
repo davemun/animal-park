@@ -90,3 +90,18 @@
   height: 35vh;
   flex-direction: row;
 }
+
+.chart {
+  height: 50%;
+}
+
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}

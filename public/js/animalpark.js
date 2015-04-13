@@ -14,13 +14,7 @@ var AnimalPark = function () {
   this.onStage = false;
   this.currentTribute;
   this.userVotes = {};
-  this.totalVotes = 0;
-  this.topFour = [
-                  {animal: "None", votes: 0},
-                  {animal: "None", votes: 0},
-                  {animal: "None", votes: 0},
-                  {animal: "None", votes: 0}
-                 ];
+  this.votes = {};
   this.hasVotedThisRound = false;
   this.heartbeat = false;
 }
@@ -155,6 +149,9 @@ $('.introDialog button').click(function () {
 
       //Event listener to get votes from other publishers
       session.on("signal:vote", function (event) {
+        var voteArray = [],
+            maxVotes = 0;
+
         console.log("Signal sent from connection " + event.from.id);
         // Process the vote.
 
@@ -168,40 +165,34 @@ $('.introDialog button').click(function () {
         }
 
         //Otherwise store their vote and update rankings
-        var newTally = (AP.userVotes[event.data.vote] === undefined) ? 1 : AP.userVotes[event.data.vote] + 1;
-        AP.userVotes[event.data.vote] = newTally;
-        AP.totalVotes = AP.totalVotes + 1;
 
-        //Slow hack to get ranking working
-        var inTopFour = false;
-
-        AP.topFour.forEach(function (rankObj) {
-          if (rankObj.animal === event.data.vote) {
-            inTopFour = true;
-            rankObj.votes = rankObj.votes + 1;
-          }
-        });
-
-        //Check if new vote count puts in top four
-        if (!inTopFour) {
-          for (var i = AP.topFour.length-1; i >= 0; i--) {
-            if (AP.userVotes[event.data.vote] > AP.topFour[i].votes) {
-              AP.topFour[i] = {animal: event.data.vote, votes: AP.userVotes[event.data.vote]};
-              break;
-            }
-          }
+        //If this animal doesnt exist, init as 1
+        if (AP.votes[vote] === undefined) {
+          AP.votes[vote] = 1;
+        } else {
+          AP.votes[vote] = AP.votes[vote] + 1;          
         }
 
-        //Update voting bars on front end display
-        var rankOnePercent = Math.floor( (AP.topFour[0].votes / AP.totalVotes) * 100 ),
-            rankTwoPercent = Math.floor( (AP.topFour[1].votes / AP.totalVotes) * 100 ),
-            rankThreePercent = Math.floor( (AP.topFour[2].votes / AP.totalVotes) * 100 ),
-            rankFourPercent = Math.floor( (AP.topFour[3].votes / AP.totalVotes) * 100 );
+        //Sort data
+        for (var animal in AP.votes) {
+          voteArray.push({animal: animal, votes: AP.votes[animal]});
+          maxVotes = maxVotes + AP.votes[animal];
+        }
 
-        $('#rankOne').attr("aria-valuenow", rankOnePercent).text(AP.topFour[0].animal + ' ' + rankOnePercent +  '%').css({"width": ""+rankOnePercent+"%"});
-        $('#rankTwo').attr("aria-valuenow", rankTwoPercent).text(AP.topFour[1].animal + ' ' + rankTwoPercent +  '%').css({"width": ""+rankTwoPercent+"%"});
-        $('#rankThree').attr("aria-valuenow", rankThreePercent).text(AP.topFour[2].animal + ' ' + rankThreePercent +  '%').css({"width": ""+rankThreePercent+"%"});
-        $('#rankFour').attr("aria-valuenow", rankFourPercent).text(AP.topFour[3].animal + ' ' + rankFourPercent +  '%').css({"width": ""+rankFourPercent+"%"});
+        var sortedData = voteArray.sort(function(a, b){return b.votes-a.votes}).slice(0,4);
+
+        var x = d3.scale.linear()
+            .domain([0, maxVotes])
+            .range([0, 420]);
+
+        $('.chart').empty();
+
+        d3.select(".chart")
+          .selectAll("div")
+            .data(sortedData)
+          .enter().append("div")
+            .style("width", function(d) { return x(d.votes) + "px"; })
+            .text(function(d) { return d.animal+': '+d.votes+' votes'; });
       });
 
     //Listen for tributes to the games, and bring them to the center
@@ -236,7 +227,10 @@ $('.introDialog button').click(function () {
       }
       AP.currentTribute = undefined;  
       AP.hasVotedThisRound = false;
-      AP.totalVotes = 0;    
+      AP.totalVotes = 0;
+      AP.userVotes = {};
+      AP.votes = {};
+      $('.chart').empty();
     });
 
       //Connect to session
