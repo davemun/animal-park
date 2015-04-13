@@ -195,6 +195,10 @@ $('.introDialog button').click(function () {
             .text(function(d) { return d.animal+': '+d.votes+' votes'; });
       });
 
+    //===========================//    
+    //     Tribute handling      //
+    //===========================// 
+
     //Listen for tributes to the games, and bring them to the center
     session.on("signal:tribute", function (event) {
       if (event.data.username === AP.username) {
@@ -232,6 +236,10 @@ $('.introDialog button').click(function () {
       AP.votes = {};
       $('.chart').empty();
     });
+
+    //===========================//    
+    //     START THE ENGINES     //
+    //===========================//
 
       //Connect to session
       session.connect(token, function(error) {
@@ -329,7 +337,7 @@ $('#guess button').click(function () {
 });
 
 //===========================================================================//
-//                   Tribute Volunteer Functions                             //
+//                   Tribute Volunteer Buttons                               //
 //===========================================================================//
 
 $('#tribute').click(function () {
