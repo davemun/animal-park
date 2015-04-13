@@ -518,8 +518,12 @@ $('#listarchives').click(function() {
 
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
-              var linkEl = $('<a></a>').attr('href', downloadLink).text('Archive '+(i+1));
+              //Append link element
+              var linkEl = $('<a download></a>').attr('href', downloadLink).text('Download Archive '+(i+1));
               $('.videoContainer').append(linkEl);
+              //Append video element
+              var videoEl = $('<video controls name=\"media\"></video>').append($("<source></source>").attr('src', downloadLink));              
+              $('.videoContainer').append(videoEl);
              }
           },
           500: function (response) {
