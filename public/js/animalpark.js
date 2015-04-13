@@ -141,6 +141,27 @@ $('.introDialog button').click(function () {
         subscriber.restrictFrameRate(true);
 
         $('#'+event.stream.name+'Video').css({"height":"100%"});
+
+        //===========================//    
+        //   Send them our votes     //
+        //===========================//
+        var connection = event.stream.connection;
+        session.signal({
+                        to: connection,
+                        data: {votes: AP.votes, userVotes: AP.userVotes},
+                        type: "voteUpdate"
+                      },
+          function(error) {
+            if (error) {
+              console.log("vote update signal error ("
+                           + error.code
+                           + "): " + error.message);
+            } else {
+              console.log("signal sent.");
+            }
+          }
+        );
+
       });
 
     //===========================//    
@@ -159,12 +180,14 @@ $('.introDialog button').click(function () {
         var vote = escape(event.data.vote).toLowerCase(),
             username = escape(event.data.username);
 
-        //If user already voted, ignore
+        //If user already voted, subtract from old vote first
         if (AP.userVotes[username]) {
-          return;
+          var oldVote = AP.userVotes[username];
+          AP.votes[oldVote] = AP.votes[oldVote] - 1;
         }
 
         //Otherwise store their vote and update rankings
+        AP.userVotes[username] = vote;
 
         //If this animal doesnt exist, init as 1
         if (AP.votes[vote] === undefined) {
@@ -191,7 +214,7 @@ $('.introDialog button').click(function () {
           .selectAll("div")
             .data(sortedData)
           .enter().append("div")
-            .style("width", function(d) { return x(d.votes) + "px"; })
+            .style("width", function(d) { return x(d.votes) + "px"; }).style("visibility", function (d) { return (d.votes > 0) ? "visible" : "hidden"; })
             .text(function(d) { return d.animal+': '+d.votes+' votes'; });
       });
 
@@ -235,6 +258,18 @@ $('.introDialog button').click(function () {
       AP.userVotes = {};
       AP.votes = {};
       $('.chart').empty();
+    });
+
+    //===========================//    
+    // Listen for votes update   //
+    //===========================// 
+
+    //Listen for other clients updated votes list
+    session.on("signal:voteUpdate", function (event) {
+      if (Object.keys(AP.userVotes).length < Object.keys(event.data.userVotes).length) {
+        AP.userVotes = event.data.userVotes;
+        AP.votes = event.data.votes;
+      }
     });
 
     //===========================//    
@@ -314,11 +349,6 @@ $('.introDialog button').click(function () {
 
 
 $('#guess button').click(function () {
-  //Check if already voted this round
-  if (AP.hasVotedThisRound) {
-   flashMessage('You already voted this round!');
-   return; 
-  }
 
   var guessString = $('#guess input').val();
   var voteObj = {vote: guessString, username: AP.username};
@@ -380,8 +410,13 @@ $('#done').click(function () {
 $('#startarchive').click(function() {
   //if there is an archive request already ongoing
 
+  if(AP.session.connections.length() > 9) {
+    flashMessage('>>> OpenTok API can only record first NINE (9) streams!');
+  }
+
   if (AP.archiveId) {
    flashMessage('You\'re already recording this session!');
+   return;
   }
 
   $.ajax("http://"+serverAddress+"/archive/start", {
@@ -396,6 +431,7 @@ $('#startarchive').click(function() {
         },
         500: function (response) {
            flashMessage('Error while attempting to archive!');
+           flashMessage('Error message: '+response.responseJSON.message);           
         }
      }
   });
@@ -412,6 +448,7 @@ $('#stoparchive').click(function() {
           },
           500: function (response) {
              flashMessage('Error while attempting to stop archive!');
+             flashMessage('Error message: '+response.responseJSON.message);           
           }
        }
     });
