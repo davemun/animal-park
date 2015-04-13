@@ -512,7 +512,6 @@ $('#listarchives').click(function() {
        type: "GET",
        statusCode: {
           200: function (response) {
-            console.log(response);
              var archiveIds = Object.keys(response),
                   downloadLink;
 
@@ -529,11 +528,31 @@ $('#listarchives').click(function() {
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
               var container = $('<div></div>').addClass("well well-lg");
-              //Append link element
-              var linkEl = $('<form download></form>').attr('action', downloadLink);
-              linkEl.append( $('<input>').attr('type', 'submit').attr('value', 'Download this archive') );
-              // var linkEl = $('<a download></a>').attr('href', downloadLink).text('Download this archive');
-              $(container).append(linkEl);
+              
+              var linkEl = $('<a download></a>').attr('href', downloadLink);
+              var linkButtonDownload = $('<button></button>').text('Download archive');
+              linkButtonDownload.on('click', function () {
+                linkEl.trigger('click');
+              });
+
+              var linkButtonDelete = $('<button></button>').text('Delete archive');
+              linkButtonDelete.on('click', function () {
+                $.ajax(serverAddress+"/archive/delete", {
+                   type: "POST",
+                   data: {archiveId: archiveIds[i], username: AP.username},
+                   statusCode: {
+                      200: function (response) {
+                         container.slideUp(1000, function(){ $(this).remove(); });
+                      },
+                      500: function (response) {
+                         flashMessage('Error while attempting to delete archive!');
+                         flashMessage('Error message: '+response.responseJSON.message);           
+                      }
+                   }
+                });
+              });
+
+              $(container).append(linkButtonDownload).append(linkButtonDelete);              
               //Append video element
               var videoEl = $('<video controls name=\"media\"></video>').append($("<source></source>").attr('src', downloadLink));              
               $(container).append(videoEl);

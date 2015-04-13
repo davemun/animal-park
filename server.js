@@ -113,6 +113,23 @@ app.post('/archive/status', function(req, res) {
   }
 });
 
+app.post('/archive/delete', function(req, res) {
+  //if an archive video is available, store link in database
+  opentok.deleteArchive(req.body.archiveId, function(err) {
+    if (err) {
+      console.log(err);
+      res.status(500).send(err);
+      return;
+    }
+
+    db.archiveRequests[res.body.username][res.body.archiveId] = undefined;
+    res.status(200).end();
+
+    // The id property is useful to save off into a database
+    console.log("Deleted archive:" + archive.id);
+  });
+});
+
 app.get('/archive/list/:name', function(req, res) {
   //send back list of archives if it exists
   var list = db.archiveRequests[req.params.name] || {};
