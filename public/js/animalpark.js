@@ -598,7 +598,23 @@ $('#screenshot').click(function() {
   var img = document.createElement("img");
   img.setAttribute("src", "data:image/png;base64," + imgData); 
 
+  var container = $('<div></div>').addClass("well well-lg");
+  var downloadLink = 'data:image/png;base64,' + imgData;
+  var d = new Date().toISOString().slice(0, 19).replace(/-/g, "");
+  var linkEl = $('<a></a>').attr('href', downloadLink).attr("download", "screenshot-" + d + ".png");
+  var linkButtonDownload = $('<button></button>').text('Download image');
+  linkButtonDownload.on('click', function () {
+    linkEl[0].click();
+  });
+
+  var linkButtonDelete = $('<button></button>').text('Delete image');
+  linkButtonDelete.on('click', function () {
+   container.slideUp(1000, function(){ $(this).remove(); });
+  });
+
+  container.append(linkButtonDownload).append(linkButtonDelete).append(img);
+
   // Replace with the parent DIV for the img
-  document.getElementById("imageContainer").appendChild(img);
+  $('#imageContainer').append(container);
 });
 
