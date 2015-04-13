@@ -532,7 +532,7 @@ $('#listarchives').click(function() {
               var linkEl = $('<a download></a>').attr('href', downloadLink);
               var linkButtonDownload = $('<button></button>').text('Download archive');
               linkButtonDownload.on('click', function () {
-                linkEl.trigger('click');
+                linkEl[0].click();
               });
 
               var linkButtonDelete = $('<button></button>').text('Delete archive');
