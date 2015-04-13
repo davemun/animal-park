@@ -176,9 +176,6 @@ $('.introDialog button').click(function () {
 
       //Event listener to get votes from other publishers
       session.on("signal:vote", function (event) {
-        function updateVotes (voteDB, vote) {
-
-        }
         var voteArray = [],
             maxVotes = 0;
 
@@ -246,6 +243,11 @@ $('.introDialog button').click(function () {
 
       tribute.appendTo('#broadcaster').css({"height": "63vh", "width": "40vw", "left": "0px", "top": "0px"});
       AP.currentTribute = event.data.username;
+      AP.hasVotedThisRound = false;
+      AP.totalVotes = 0;
+      AP.userVotes = {};
+      AP.votes = {};
+      $('.chart').empty();
     });
 
     //Listen for when tributes want to end
