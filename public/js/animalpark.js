@@ -311,10 +311,20 @@ $('.introDialog button').click(function () {
     //     START THE ENGINES     //
     //===========================//
 
+      var pubVideo = $('#sendVideo').is(":checked"),
+          pubAudio = $('#sendAudio').is(":checked");
+
       //Connect to session
       session.connect(token, function(error) {
           //High res - because we can
-          var publisher = OT.initPublisher('webcam', {name: AP.username, resolution: '1280x720'});
+          var publisher = OT.initPublisher('webcam', 
+            {
+              name: AP.username, 
+              resolution: '1280x720', 
+              publishAudio: pubAudio, 
+              publishVideo: pubVideo
+            }
+          );
           //Store publisher for later access
           AP.publisher = publisher;
           session.publish(publisher);
