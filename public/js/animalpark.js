@@ -528,18 +528,20 @@ $('#listarchives').click(function() {
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
               var container = $('<div></div>').addClass("well well-lg");
-              
+
               var linkEl = $('<a download></a>').attr('href', downloadLink);
               var linkButtonDownload = $('<button></button>').text('Download archive');
               linkButtonDownload.on('click', function () {
                 linkEl[0].click();
               });
 
-              var linkButtonDelete = $('<button></button>').text('Delete archive');
+              var linkButtonDelete = $('<button></button>').text('Delete archive').data("archiveId", archiveIds[i]);
               linkButtonDelete.on('click', function () {
+                var archiveId = $(this).data("archiveId");
+
                 $.ajax(serverAddress+"/archive/delete", {
                    type: "POST",
-                   data: {archiveId: archiveIds[i], username: AP.username},
+                   data: {archiveId: archiveId, username: AP.username},
                    statusCode: {
                       200: function (response) {
                          container.slideUp(1000, function(){ $(this).remove(); });

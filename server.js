@@ -122,11 +122,11 @@ app.post('/archive/delete', function(req, res) {
       return;
     }
 
-    db.archiveRequests[res.body.username][res.body.archiveId] = undefined;
+    db.archiveRequests[req.body.username][req.body.archiveId] = undefined;
     res.status(200).end();
 
     // The id property is useful to save off into a database
-    console.log("Deleted archive:" + archive.id);
+    console.log("Deleted archive:" + req.body.archiveId);
   });
 });
 
