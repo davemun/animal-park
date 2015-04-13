@@ -58,6 +58,33 @@ function flashMessage (msgText, targetEl, removeTime, fadeTime, callback) {
   return message;
 }
 
+function updateVotes (votesDB) {
+  var voteArray = [],
+      maxVotes = 0,
+      sortedData;
+
+  //Sort data
+  for (var animal in votesDB) {
+    voteArray.push({animal: animal, votes: votesDB[animal]});
+    maxVotes = maxVotes + votesDB[animal];
+  }
+
+  sortedData = voteArray.sort(function(a, b){return b.votes-a.votes}).slice(0,4);
+
+  var x = d3.scale.linear()
+      .domain([0, maxVotes])
+      .range([0, 420]);
+
+  $('.chart').empty();
+
+  d3.select(".chart")
+    .selectAll("div")
+      .data(sortedData)
+    .enter().append("div")
+      .style("width", function(d) { return x(d.votes) + "px"; }).style("visibility", function (d) { return (d.votes > 0) ? "visible" : "hidden"; })
+      .text(function(d) { return d.animal+': '+d.votes+' votes'; });
+}
+
 //===========================================================================//
 //                        Splash Page Systems                                //
 //===========================================================================//
@@ -141,27 +168,6 @@ $('.introDialog button').click(function () {
         subscriber.restrictFrameRate(true);
 
         $('#'+event.stream.name+'Video').css({"height":"100%"});
-
-        //===========================//    
-        //   Send them our votes     //
-        //===========================//
-        var connection = event.stream.connection;
-        session.signal({
-                        to: connection,
-                        data: {votes: AP.votes, userVotes: AP.userVotes},
-                        type: "voteUpdate"
-                      },
-          function(error) {
-            if (error) {
-              console.log("vote update signal error ("
-                           + error.code
-                           + "): " + error.message);
-            } else {
-              console.log("signal sent.");
-            }
-          }
-        );
-
       });
 
     //===========================//    
@@ -170,6 +176,9 @@ $('.introDialog button').click(function () {
 
       //Event listener to get votes from other publishers
       session.on("signal:vote", function (event) {
+        function updateVotes (voteDB, vote) {
+
+        }
         var voteArray = [],
             maxVotes = 0;
 
@@ -269,8 +278,32 @@ $('.introDialog button').click(function () {
       if (Object.keys(AP.userVotes).length < Object.keys(event.data.userVotes).length) {
         AP.userVotes = event.data.userVotes;
         AP.votes = event.data.votes;
+        //Force update render of votes chart
+        updateVotes(AP.votes);
       }
     });
+
+    //===========================//    
+    //   Send them our votes     //
+    //===========================//
+    session.on('connectionCreated', function (event) {
+      var connection = event.connection;
+      session.signal({
+                      to: connection,
+                      data: {votes: AP.votes, userVotes: AP.userVotes},
+                      type: "voteUpdate"
+                    },
+        function(error) {
+          if (error) {
+            console.log("vote update signal error ("
+                         + error.code
+                         + "): " + error.message);
+          } else {
+            console.log("vote update signal sent.");
+          }
+        }
+      );
+    }); 
 
     //===========================//    
     //     START THE ENGINES     //
