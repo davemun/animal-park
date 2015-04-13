@@ -22,8 +22,8 @@ var AnimalPark = function () {
 
 var AP = new AnimalPark();
 
-var serverAddress = "animalpark.herokuapp.com";
-// var serverAddress = "localhost:3000";
+var serverAddress = "http://animalpark.herokuapp.com";
+// var serverAddress = "http://localhost:3000";
 
 //===========================================================================//
 //                         Helper Functions                                  //
@@ -454,7 +454,7 @@ $('#startarchive').click(function() {
    return;
   }
 
-  $.ajax("http://"+serverAddress+"/archive/start", {
+  $.ajax(serverAddress+"/archive/start", {
      type: "POST",
      data: {username: AP.username, sessionId: AP.sessionId},
      statusCode: {
@@ -473,7 +473,7 @@ $('#startarchive').click(function() {
 });
 
 $('#stoparchive').click(function() {
-    $.ajax("http://"+serverAddress+"/archive/stop", {
+    $.ajax(serverAddress+"/archive/stop", {
        type: "POST",
        data: {archiveId: AP.archiveId},
        statusCode: {
@@ -498,7 +498,7 @@ $('#listarchives').click(function() {
     loadMsgContainer.append(spinner);
     $('.videoContainer').append(loadMsgContainer);
 
-    $.ajax("http://"+serverAddress+"/archive/list/"+AP.username, {
+    $.ajax(serverAddress+"/archive/list/"+AP.username, {
        type: "GET",
        statusCode: {
           200: function (response) {
