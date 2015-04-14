@@ -538,10 +538,11 @@ $('#listarchives').click(function() {
 
              for (var i = 0; i < archiveIds.length; i++) {
               downloadLink = response[archiveIds[i]];
+              downloadLink = serverAddress.charAt(4) === 's' ? httpToHttps(downloadLink) : downloadLink;
               var container = $('<div></div>').addClass("well well-lg");
 
               //Convert link to https if endpoint is https
-              var linkEl = $('<a download></a>').attr('href', serverAddress.charAt(4) === 's' ? httpToHttps(downloadLink) : downloadLink);
+              var linkEl = $('<a download></a>').attr('href', downloadLink);
               var linkButtonDownload = $('<button></button>').text('Download archive');
               linkButtonDownload.on('click', function () {
                 linkEl[0].click();
