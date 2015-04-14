@@ -21,25 +21,24 @@ db.archiveRequests = {};
 var OpenTok = require('opentok'),
   apiKey = '45200812',
   apiSecret = 'a6ab795cda0110e7974dd5153098d02d68470a7a',
-    opentok = new OpenTok(apiKey, apiSecret),
-    sessionId,
-    archiveId,
-    session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
-    if (error) {
-      console.log("Error creating session:", error)
-    } else {
-      sessionId = session.sessionId;
-      console.log("Session ID: " + sessionId);
-    }
+  opentok = new OpenTok(apiKey, apiSecret),
+  sessionId,
+  session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
+  if (error) {
+    console.log("Error creating session:", error)
+  } else {
+    sessionId = session.sessionId;
+    console.log("Session ID: " + sessionId);
+  }
 
-    //  Use the role value appropriate for the user:
-    var tokenOptions = {};
-    tokenOptions.role = "publisher";
- 
-    // Generate a token.
-    token = opentok.generateToken(sessionId, tokenOptions);
-    console.log(token);
-  });
+  //  Use the role value appropriate for the user:
+  var tokenOptions = {};
+  tokenOptions.role = "publisher";
+
+  // Generate a token.
+  token = opentok.generateToken(sessionId, tokenOptions);
+  console.log(token);
+});
 
 app.post('/start', function(req, res) {
   //Here we have access to req.body.username, set an alias
