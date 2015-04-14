@@ -85,6 +85,14 @@ function updateVotes (votesDB) {
       .text(function(d) { return d.animal+': '+d.votes+' votes'; });
 }
 
+function httpToHttps (str) {
+  var i = str.indexOf('http');
+  if (str.charAt(i+4) === 's') {
+    return str;
+  }
+  return i < 0 ? new Error('Link doesn\'t have http in string') : str.slice(0,i+4)+'s'+str.slice(i+4);
+}
+
 //===========================================================================//
 //                        Splash Page Systems                                //
 //===========================================================================//
@@ -532,7 +540,8 @@ $('#listarchives').click(function() {
               downloadLink = response[archiveIds[i]];
               var container = $('<div></div>').addClass("well well-lg");
 
-              var linkEl = $('<a download></a>').attr('href', downloadLink);
+              //Convert link to https if endpoint is https
+              var linkEl = $('<a download></a>').attr('href', serverAddress.charAt(4) === 's' ? httpToHttps(downloadLink) : downloadLink);
               var linkButtonDownload = $('<button></button>').text('Download archive');
               linkButtonDownload.on('click', function () {
                 linkEl[0].click();
