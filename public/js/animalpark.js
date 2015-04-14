@@ -22,7 +22,7 @@ var AnimalPark = function () {
 
 var AP = new AnimalPark();
 
-var serverAddress = "http://animalpark.herokuapp.com";
+var serverAddress = "https://animalpark.herokuapp.com";
 // var serverAddress = "http://localhost:3000";
 
 //===========================================================================//
@@ -501,8 +501,8 @@ $('#stoparchive').click(function() {
 
 $('#listarchives').click(function() {
     var loadMsgContainer = $('<div></div>').addClass('loadMsg'),
-        loadMsg = $('<div></div').text('Loading archives...'),
-        spinner = $('<i class="fa fa-spinner fa-pulse"></i>');
+        loadMsg = $('<div></div').text('Loading archives...').css('float': 'left'),
+        spinner = $('<i class="fa fa-spinner fa-pulse"></i>').css('margin-left': '5px');
 
     loadMsgContainer.append(loadMsg);
     loadMsgContainer.append(spinner);
