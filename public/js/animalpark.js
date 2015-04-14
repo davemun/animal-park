@@ -502,7 +502,7 @@ $('#stoparchive').click(function() {
 $('#listarchives').click(function() {
     var loadMsgContainer = $('<div></div>').addClass('loadMsg'),
         loadMsg = $('<div></div').text('Loading archives...'),
-        spinner = $('<i class="fa fa-spin"></i>');
+        spinner = $('<i class="fa fa-spinner fa-pulse"></i>');
 
     loadMsgContainer.append(loadMsg);
     loadMsgContainer.append(spinner);
