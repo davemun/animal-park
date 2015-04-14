@@ -110,6 +110,7 @@ app.post('/archive/status', function(req, res) {
     db.archiveRequests[req.body.name] = db.archiveRequests[req.body.name] || {};
     db.archiveRequests[req.body.name][req.body.id] = req.body.url;
   }
+  res.end();
 });
 
 app.post('/archive/delete', function(req, res) {
@@ -127,6 +128,7 @@ app.post('/archive/delete', function(req, res) {
     // The id property is useful to save off into a database
     console.log("Deleted archive:" + req.body.archiveId);
   });
+  res.end();
 });
 
 app.get('/archive/list/:name', function(req, res) {
@@ -149,7 +151,7 @@ app.post('/username', function(req, res) {
 app.post('/heartbeat', function(req, res) {
   var username = escape(req.body.username).toLowerCase();
   db.heartbeats[username] = true;
-  res.send();
+  res.end();
 });
 
 app.listen(process.env.PORT || 3000);
