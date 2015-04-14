@@ -508,6 +508,9 @@ $('#listarchives').click(function() {
     loadMsgContainer.append(spinner);
     $('.videoContainer').append(loadMsgContainer);
 
+    //Hide no image dialog if there are images
+    $('#noImageDialog').css('visibility', $('#imageContainer').children().length > 1 ? 'hidden' : 'visible');
+
     $.ajax(serverAddress+"/archive/list/"+AP.username, {
        type: "GET",
        statusCode: {
