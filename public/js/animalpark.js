@@ -420,77 +420,83 @@ $('#guess button').click(function () {
 });
 
 //===========================================================================//
-//                   Tribute Volunteer Buttons                               //
+//                 Tribute Volunteer/Escape Buttons                          //
 //===========================================================================//
 
 $('#tribute').click(function () {
-  //You're already on stage, or someone else is on stage
-  if (AP.onStage) {
-    return;
-  } else if (AP.currentTribute !== undefined) {
-    console.log("Wait your turn! Someone's already onstage.")
-    return;
-  }
-  var tributeObj = {username: AP.username}
-  AP.session.signal({data: tributeObj, type:"tribute"}, function (err) {
-    if (err) {
-      console.log("signal error (" + error.code + "): " + error.message);
-    } else {
-      console.log("signal sent.");
-    }    
-  });
-});
+  if ($(this).hasClass('volunteer')) {
+    $(this).removeClass('volunteer').addClass('escape').text('Get me outta here');
 
-$('#done').click(function () {
-  //Already off stage, nowhere to go
-  if (!AP.onStage) {
-    return;
+    //You're already on stage
+    if (AP.onStage) {
+      flashMessage('You\'re already onstage!');
+      return;
+    //or someone else is on stage
+    } else if (AP.currentTribute !== undefined) {
+      flashMessage("Wait your turn! Someone's already onstage.")
+      return;
+    }
+    var tributeObj = {username: AP.username}
+    AP.session.signal({data: tributeObj, type:"tribute"}, function (err) {
+      if (err) {
+        console.log("signal error (" + error.code + "): " + error.message);
+      } else {
+        console.log("tribute volunteer signal sent.");
+      }    
+    });
+  } else if ($(this).hasClass('escape')) {
+    $(this).removeClass('escape').addClass('volunteer').text('I volunteer as tribute');
+
+    //Already off stage, nowhere to go
+    if (!AP.onStage) {
+      return;
+    }
+    var tributeObj = {username: AP.username}
+    AP.session.signal({data: tributeObj, type:"tributeEnd"}, function (err) {
+      if (err) {
+        console.log("signal error (" + error.code + "): " + error.message);
+      } else {
+        console.log("escape signal sent.");
+      }    
+    });
   }
-  var tributeObj = {username: AP.username}
-  AP.session.signal({data: tributeObj, type:"tributeEnd"}, function (err) {
-    if (err) {
-      console.log("signal error (" + error.code + "): " + error.message);
-    } else {
-      console.log("signal sent.");
-    }    
-  });
 });
 
 //===========================================================================//
 //                          Archiving Functions                              //
 //===========================================================================//
 
-$('#startarchive').click(function() {
-  //if there is an archive request already ongoing
+$('#archive').click(function() {
+  if ($(this).hasClass('start')) {
+    $(this).removeClass('start').addClass('stop').text('Stop archive');
 
-  if(AP.session.connections.length() > 9) {
-    flashMessage('>>> OpenTok API can only record first NINE (9) streams!');
-  }
+    //if there is an archive request already ongoing
 
-  if (AP.archiveId) {
-   flashMessage('You\'re already recording this session!');
-   return;
-  }
+    if(AP.session.connections.length() > 9) {
+      flashMessage('>>> OpenTok API can only record first NINE (9) streams!');
+    }
 
-  $.ajax(serverAddress+"/archive/start", {
-     type: "POST",
-     data: {username: AP.username, sessionId: AP.sessionId},
-     statusCode: {
-        200: function (response) {
+    if (AP.archiveId) {
+     flashMessage('You\'re already recording this session!');
+     return;
+    }
 
-           AP.archiveId = response;
-           
-           flashMessage('Broadcast is archiving!');
-        },
-        500: function (response) {
-           flashMessage('Error while attempting to archive!');
-           flashMessage('Error message: '+response.responseJSON.message);           
-        }
-     }
-  });
-});
-
-$('#stoparchive').click(function() {
+    $.ajax(serverAddress+"/archive/start", {
+       type: "POST",
+       data: {username: AP.username, sessionId: AP.sessionId},
+       statusCode: {
+          200: function (response) {
+             AP.archiveId = response;
+             flashMessage('Broadcast is archiving!');
+          },
+          500: function (response) {
+             flashMessage('Error while attempting to archive!');
+             flashMessage('Error message: '+response.responseJSON.message);           
+          }
+       }
+    });
+  } else if ($(this).hasClass('stop')) {
+    $(this).removeClass('stop').addClass('start').text('Start archive');
     $.ajax(serverAddress+"/archive/stop", {
        type: "POST",
        data: {archiveId: AP.archiveId},
@@ -505,6 +511,7 @@ $('#stoparchive').click(function() {
           }
        }
     });
+  }
 });
 
 $('#listarchives').click(function() {
