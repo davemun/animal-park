@@ -19,8 +19,8 @@ db.heartbeats = {};
 db.archiveRequests = {};
 
 var OpenTok = require('opentok'),
-  apiKey = '45200812',
-  apiSecret = 'a6ab795cda0110e7974dd5153098d02d68470a7a',
+  apiKey = process.env.APIKEY,
+  apiSecret = process.env.APISECRET,
   opentok = new OpenTok(apiKey, apiSecret),
   sessionId,
   session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
