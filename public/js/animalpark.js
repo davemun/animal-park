@@ -531,6 +531,7 @@ $('#listarchives').click(function() {
        statusCode: {
           200: function (response) {
              var archiveIds = Object.keys(response),
+                  containerList = [],
                   downloadLink;
 
               //Remove load message since we got answer from server
@@ -547,6 +548,7 @@ $('#listarchives').click(function() {
               downloadLink = response[archiveIds[i]];
               downloadLink = serverAddress.charAt(4) === 's' ? httpToHttps(downloadLink) : downloadLink;
               var container = $('<div></div>').addClass("well well-lg");
+              containerList.push(container);
 
               //Convert link to https if endpoint is https
               var linkEl = $('<a download></a>').attr('href', downloadLink);
@@ -555,7 +557,7 @@ $('#listarchives').click(function() {
                 linkEl[0].click();
               });
 
-              var linkButtonDelete = $('<button></button>').text('Delete archive').data("archiveId", archiveIds[i]);
+              var linkButtonDelete = $('<button></button>').text('Delete archive').data("archiveId", archiveIds[i]).attr("id", archiveIds[i]);
               linkButtonDelete.on('click', function () {
                 var archiveId = $(this).data("archiveId");
 
@@ -564,7 +566,13 @@ $('#listarchives').click(function() {
                    data: {archiveId: archiveId, username: AP.username},
                    statusCode: {
                       200: function (response) {
-                         container.slideUp(1000, function(){ $(this).remove(); });
+                         var currentContainer;
+                         containerList.forEach(function (container) {
+                          if(container.find('#'+archiveId)) {
+                            currentContainer = container;
+                          }
+                         });
+                         currentContainer.slideUp(1000, function(){ $(this).remove(); });
                       },
                       500: function (response) {
                          flashMessage('Error while attempting to delete archive!');
