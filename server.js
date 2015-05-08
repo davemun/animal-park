@@ -17,6 +17,7 @@ var db = {};
 db.usernames = {};
 db.heartbeats = {};
 db.archiveRequests = {};
+db.endpointTest = [];
 
 var OpenTok = require('opentok'),
   apiKey = process.env.APIKEY,
@@ -143,6 +144,16 @@ app.post('/username', function(req, res) {
     db.usernames[req.body.username] = true;
   }
   res.send({isAlreadyUsed: usernameIsUsed});
+});
+
+//Testbed endpoint verification
+app.post('/endpointTest', function(req, res) {
+  db.endpointTest.push(escape(req.body));
+  res.end();
+});
+
+app.get('/endpointTest', function(req, res) {
+  res.send(JSON.stringify(db.endpointTest));
 });
 
 //Heartbeat functions
