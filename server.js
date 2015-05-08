@@ -148,7 +148,7 @@ app.post('/username', function(req, res) {
 
 //Testbed endpoint verification
 app.post('/endpointTest', function(req, res) {
-  db.endpointTest.push(escape(req.body));
+  db.endpointTest.push(req.body);
   res.end();
 });
 
