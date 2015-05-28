@@ -20,8 +20,8 @@ db.archiveRequests = {};
 db.endpointTest = [];
 
 var OpenTok = require('opentok'),
-  apiKey = process.env.APIKEY,
-  apiSecret = process.env.APISECRET,
+  apiKey = '45230542',//process.env.APIKEY,
+  apiSecret = 'e35b468f3e42256aeeba66e8c1c47737d19b9c83',//process.env.APISECRET,
   opentok = new OpenTok(apiKey, apiSecret),
   sessionId,
   session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
@@ -35,6 +35,7 @@ var OpenTok = require('opentok'),
   //  Use the role value appropriate for the user:
   var tokenOptions = {};
   tokenOptions.role = "publisher";
+  tokenOptions.expireTime = '1463207100';
 
   // Generate a token.
   token = opentok.generateToken(sessionId, tokenOptions);
@@ -73,7 +74,7 @@ app.post('/start', function(req, res) {
 
 //Archiving functions
 app.post('/archive/start', function(req, res) {
-  opentok.startArchive(req.body.sessionId, {name: req.body.username}, function(err, archive) {
+  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode:'INDIVIDUAL'}, function(err, archive) {
     if (err) {
       console.log(err);
       res.status(500).send(err);
