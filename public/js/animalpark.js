@@ -5,7 +5,7 @@
 
 var AnimalPark = function () {
   this.username = "";
-  this.apiKey = "45200812";
+  this.apiKey = "";
   this.sessionId = "";
   this.archiveId;
   this.session = null;
@@ -149,6 +149,7 @@ $('.introDialog button').click(function () {
       data: {username: AP.username},
       success: function (data) {
       AP.sessionId = data.sessionId,
+      AP.apiKey = data.apiKey
       token = data.token;
 
     //===========================//    

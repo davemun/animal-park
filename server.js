@@ -53,7 +53,8 @@ app.post('/start', function(req, res) {
 
   var data = {
               sessionId: sessionId,
-              token: token
+              token: token,
+              apiKey: apiKey
              };
   res.send(data);
 
