@@ -80,7 +80,7 @@ app.post('/start', function(req, res) {
 
 //Archiving functions
 app.post('/archive/start', function(req, res) {
-  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode: archiveMode}, function(err, archive) {
+  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode: 'individual'}, function(err, archive) {
     if (err) {
       console.log(err);
       res.status(500).send(err);
