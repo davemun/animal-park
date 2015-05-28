@@ -29,6 +29,7 @@ var OpenTok = require('opentok'),
   apiSecret = logins.secrets[archiveMode],
   opentok = new OpenTok(apiKey, apiSecret),
   sessionId,
+  token,
   session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
   if (error) {
     console.log("Error creating session:", error)
@@ -40,7 +41,6 @@ var OpenTok = require('opentok'),
   //  Use the role value appropriate for the user:
   var tokenOptions = {};
   tokenOptions.role = "publisher";
-  tokenOptions.expireTime = '1463207100';
 
   // Generate a token.
   token = opentok.generateToken(sessionId, tokenOptions);
