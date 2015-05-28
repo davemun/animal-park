@@ -20,8 +20,13 @@ db.archiveRequests = {};
 db.endpointTest = [];
 
 var OpenTok = require('opentok'),
-  apiKey = '45230542',//process.env.APIKEY,
-  apiSecret = 'e35b468f3e42256aeeba66e8c1c47737d19b9c83',//process.env.APISECRET,
+  archiveMode = 'individual', //['individual', 'composed']
+  logins = { 
+            keys: {composed: process.env.APIKEY, individual: process.env.INDIVIDUALARCHIVE_APIKEY},
+            secrets : {composed: process.env.APIKEY, individual: process.env.INDIVIDUALARCHIVE_APISECRET}
+           },
+  apiKey = logins.keys[archiveMode],
+  apiSecret = logins.secrets[archiveMode],
   opentok = new OpenTok(apiKey, apiSecret),
   sessionId,
   session = opentok.createSession({mediaMode:"routed"}, function(error, session) {
@@ -74,7 +79,7 @@ app.post('/start', function(req, res) {
 
 //Archiving functions
 app.post('/archive/start', function(req, res) {
-  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode:'INDIVIDUAL'}, function(err, archive) {
+  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode: archiveMode}, function(err, archive) {
     if (err) {
       console.log(err);
       res.status(500).send(err);
