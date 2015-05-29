@@ -41,6 +41,7 @@ var OpenTok = require('opentok'),
   //  Use the role value appropriate for the user:
   var tokenOptions = {};
   tokenOptions.role = "publisher";
+  tokenOptions.data = "{name: 'davetesttokenstuff'}";
 
   // Generate a token.
   token = opentok.generateToken(sessionId, tokenOptions);
@@ -80,7 +81,7 @@ app.post('/start', function(req, res) {
 
 //Archiving functions
 app.post('/archive/start', function(req, res) {
-  opentok.startArchive(req.body.sessionId, {name: req.body.username, outputMode: 'individual'}, function(err, archive) {
+  opentok.startArchive(req.body.sessionId, {name: req.body.username}, function(err, archive) {
     if (err) {
       console.log(err);
       res.status(500).send(err);
